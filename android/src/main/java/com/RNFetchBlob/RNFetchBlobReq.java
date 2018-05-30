@@ -344,45 +344,34 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
             clientBuilder.addInterceptor(new Interceptor() {
                 @Override
                 public Response intercept(@NonNull Chain chain) throws IOException {
-                    try {
-                        Response originalResponse = chain.proceed(req);
-                        ResponseBody extended;
-                        switch (responseType) {
-                            case KeepInMemory:
-                                extended = new RNFetchBlobDefaultResp(
-                                        RNFetchBlob.RCTContext,
-                                        taskId,
-                                        originalResponse.body(),
-                                        options.increment);
-                                break;
-                            case FileStorage:
-                                extended = new RNFetchBlobFileResp(
-                                        RNFetchBlob.RCTContext,
-                                        taskId,
-                                        originalResponse.body(),
-                                        destPath,
-                                        options.overwrite);
-                                break;
-                            default:
-                                extended = new RNFetchBlobDefaultResp(
-                                        RNFetchBlob.RCTContext,
-                                        taskId,
-                                        originalResponse.body(),
-                                        options.increment);
-                                break;
-                        }
-                        return originalResponse.newBuilder().body(extended).build();
+                    Response originalResponse = chain.proceed(chain.request());
+                    ResponseBody extended;
+                    switch (responseType) {
+                        case KeepInMemory:
+                            extended = new RNFetchBlobDefaultResp(
+                                    RNFetchBlob.RCTContext,
+                                    taskId,
+                                    originalResponse.body(),
+                                    options.increment);
+                            break;
+                        case FileStorage:
+                            extended = new RNFetchBlobFileResp(
+                                    RNFetchBlob.RCTContext,
+                                    taskId,
+                                    originalResponse.body(),
+                                    destPath,
+                                    options.overwrite);
+                            break;
+                        default:
+                            extended = new RNFetchBlobDefaultResp(
+                                    RNFetchBlob.RCTContext,
+                                    taskId,
+                                    originalResponse.body(),
+                                    options.increment);
+                            break;
                     }
-                    catch(SocketException e) {
-                        timeout = true;
-                    }
-                    catch (SocketTimeoutException e ){
-                        timeout = true;
-                        RNFetchBlobUtils.emitWarningEvent("RNFetchBlob error when sending request : " + e.getLocalizedMessage());
-                    } catch(Exception ex) {
 
-                    }
-                    return chain.proceed(chain.request());
+                    return originalResponse.newBuilder().body(extended).build();
                 }
             });
 
