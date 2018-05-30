@@ -100,7 +100,6 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
     ResponseType responseType;
     ResponseFormat responseFormat = ResponseFormat.Auto;
     WritableMap respInfo;
-    boolean timeout = false;
     ArrayList<String> redirects = new ArrayList<>();
     OkHttpClient client;
 
@@ -374,17 +373,7 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     cancelTask(taskId);
-                    if(respInfo == null) {
-                        respInfo = Arguments.createMap();
-                    }
-
-                    // check if this error caused by socket timeout
-                    if(e.getClass().equals(SocketTimeoutException.class)) {
-                        respInfo.putBoolean("timeout", true);
-                        callback.invoke("request timed out.", null, null);
-                    }
-                    else
-                        callback.invoke(e.getLocalizedMessage(), null, null);
+                    callback.invoke(e.getLocalizedMessage(), null, null);
                     releaseTaskResource();
                 }
 
@@ -550,7 +539,6 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
         info.putInt("status", resp.code());
         info.putString("state", "2");
         info.putString("taskId", this.taskId);
-        info.putBoolean("timeout", timeout);
         WritableMap headers = Arguments.createMap();
         for(int i =0;i< resp.headers().size();i++) {
             headers.putString(resp.headers().name(i), resp.headers().value(i));
