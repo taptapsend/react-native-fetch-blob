@@ -14,10 +14,13 @@ class RNFetchBlobConfig {
     public String mime;
     public Boolean auto;
     public Boolean overwrite = true;
-    public long timeout = 60000;
     public Boolean increment = false;
     public Boolean followRedirect = true;
     public ReadableArray binaryContentTypes = null;
+
+    public long connectTimeout = 60000;
+    public long readTimeout = 60000;
+    public long writeTimeout = 60000;
 
     RNFetchBlobConfig(ReadableMap options) {
         if(options == null)
@@ -43,8 +46,23 @@ class RNFetchBlobConfig {
         this.mime = options.hasKey("contentType") ? options.getString("contentType") : null;
         this.increment = options.hasKey("increment") ? options.getBoolean("increment") : false;
         this.auto = options.hasKey("auto") ? options.getBoolean("auto") : false;
-        if(options.hasKey("timeout")) {
-            this.timeout = options.getInt("timeout");
+
+        if (options.hasKey("timeout")) {
+            this.connectTimeout = options.getInt("timeout");
+            this.readTimeout = options.getInt("timeout");
+            this.writeTimeout = options.getInt("timeout");
+        }
+
+        if (options.hasKey("connectTimeout")) {
+            this.connectTimeout = options.getInt("connectTimeout");
+        }
+
+        if (options.hasKey("readTimeout")) {
+            this.readTimeout = options.getInt("readTimeout");
+        }
+
+        if (options.hasKey("writeTimeout")) {
+            this.writeTimeout = options.getInt("writeTimeout");
         }
     }
 
