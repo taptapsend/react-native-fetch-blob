@@ -365,7 +365,6 @@ public class RNFetchBlobReq extends BroadcastReceiver implements Runnable {
             }
 
             clientBuilder.connectionPool(pool);
-            clientBuilder.retryOnConnectionFailure(false);
             clientBuilder.followRedirects(options.followRedirect);
             clientBuilder.followSslRedirects(options.followRedirect);
             clientBuilder.retryOnConnectionFailure(true);
